@@ -1,5 +1,5 @@
 # css-snippets
-A collection a useful css stuff
+A collection a useful stuff
 
 ## Style Guide
 https://github.com/google/styleguide
