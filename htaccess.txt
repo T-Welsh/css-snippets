@@ -1,0 +1,117 @@
+#################################################################################################
+# START HTACCESS DIRECTIVES
+#################################################################################################
+#
+# Author:   Tom Welsh
+# Date:     22/12/23 
+#
+#------------------------------------------------------------------------
+
+#Make sure to backup your .htaccess file before making any changes.
+#Ensure that your web server has the mod_rewrite module enabled for the rewrite rules to work.
+#Changes to the .htaccess file are usually applied immediately, but it might take some time due to caching.
+
+#------------------------------------------------------------------------
+
+# 1. Redirects
+
+# Redirect from HTTP to HTTPS:
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redirect www to non-www:
+# RewriteEngine On
+# RewriteCond %{HTTP_HOST} ^www\.example\.com [NC]
+# RewriteRule ^(.*)$ http://example.com/$1 [L,R=301]
+
+# Redirect non-www to www:
+# RewriteEngine On
+# RewriteCond %{HTTP_HOST} ^example\.com [NC]
+# RewriteRule ^(.*)$ http://www.example.com/$1 [L,R=301]
+
+#------------------------------------------------------------------------
+
+# 2. Block Access to Specific File Types:
+#Block access to .htaccess and .htpasswd:
+
+# <FilesMatch "^\.ht">
+#     Order Allow,Deny
+#     Deny from all
+#     Satisfy All
+# </FilesMatch>
+
+#------------------------------------------------------------------------
+
+# 3. Set Default Page:
+
+# DirectoryIndex index.php
+#Set default page to index.php:
+
+#------------------------------------------------------------------------
+
+# 4. Password Protect a Directory:
+# You'll need to create the .htpasswd file with usernames and encrypted passwords.
+
+# AuthType Basic
+# AuthName "Restricted Area"
+# AuthUserFile /path/to/.htpasswd
+# Require valid-user
+
+#------------------------------------------------------------------------
+
+# 5. Rewrites
+# Remove .php and .html file extensions
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
+
+#------------------------------------------------------------------------
+
+# 6. HSTS Tell web browsers to only allow access via HSTS: Strict-Transport-Security
+# This forces client-side SSL redirection. Before enabling be absolutely certain you can 
+# always serve via HTTPS because it becomes non-revokable for the duration of your max-age. 
+# Must be set for a minimum of 1 year to be considered valid.
+# See link below for details and options (note 'max-age=31536000' is 1-year):
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+
+<IfModule mod_headers.c>
+    # Uncomment one (1) line below & adjust as needed to enable Strict-Transport-Security (HSTS):
+    # Header always set Strict-Transport-Security "max-age=31536000;"
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubdomains"
+    # Header always set Strict-Transport-Security "max-age=31536000; preload"
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+#------------------------------------------------------------------------
+
+# 7. XSS Protection with Apache headers
+
+<IfModule mod_headers.c>
+  # prevent site from being loaded in an iframe on another site
+  # you will need to remove this one if you want to allow external iframes
+  Header always append X-Frame-Options SAMEORIGIN 
+
+  # To prevent cross site scripting (IE8+)
+  Header set X-XSS-Protection "1; mode=block"
+
+  # Optionally (O) prevent mime-based attacks via content sniffing (IE+Chrome)
+  # Header set X-Content-Type-Options "nosniff" 
+</IfModule>
+
+#------------------------------------------------------------------------
+
+#8. Suppress server information data
+
+ServerSignature Off
+ServerTokens Prod
+
+<IfModule mod_headers.c>
+    # Remove server information header
+    Header unset Server
+</IfModule>
+
+#################################################################################################
+# END HTACCESS DIRECTIVES
+#################################################################################################
